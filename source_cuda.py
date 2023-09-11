@@ -3,26 +3,26 @@ import numpy as np
 import os
 import time
 
-def gkernel(l=3, sig=2):
-
-    ax = np.linspace(-(l - 1) / 2., (l - 1) / 2., l)
-    xx, yy = np.meshgrid(ax, ax)
-
-    kernel = np.exp(-0.5 * (np.square(xx) + np.square(yy)) / np.square(sig))
-
-    return kernel / np.sum(kernel)
-
 
 # Directory containing the original images
 image_directory = "D:/Bachelor of Software Engineering (TARUC)/Bachelor of SE (7th Sem) Andrewhew/Distributed Systems and Parallel Computing/Assignment/image/sharp/100_images/"
 
 # Directory to save the blurred images
-output_directory = os.path.join(image_directory, "D:/output_directory/") 
-output_directory = "D:/Bachelor of Software Engineering (TARUC)/Bachelor of SE (7th Sem) Andrewhew/Distributed Systems and Parallel Computing/Assignment/image/sharp/100_images/filter_image/"
+# Directory to save the blurred images using gaussian filter
+gaussian_output_directory = os.path.join(image_directory, "D:/output_directory/") 
+gaussian_output_directory = "D:/Bachelor of Software Engineering (TARUC)/Bachelor of SE (7th Sem) Andrewhew/Distributed Systems and Parallel Computing/Assignment/image/sharp/100_images/gaussian_filter_image/"
 
-# Create the output directory if it doesn't exist
-if not os.path.exists(output_directory):
-    os.makedirs(output_directory)
+# Directory to save the blurred images using bilateral
+bilateral_output_directory = os.path.join(image_directory, "D:/output_directory/") 
+bilateral_output_directory = "D:/Bachelor of Software Engineering (TARUC)/Bachelor of SE (7th Sem) Andrewhew/Distributed Systems and Parallel Computing/Assignment/image/sharp/100_images/bilateral_filter_image/"
+
+# Create the gaussian output directory if it doesn't exist
+if not os.path.exists(gaussian_output_directory):
+    os.makedirs(gaussian_output_directory)
+
+# Create the bilateral output directory if it doesn't exist
+if not os.path.exists(bilateral_output_directory):
+    os.makedirs(bilateral_output_directory)
 
 # List all files in the directory
 image_files = [file for file in os.listdir(image_directory) if file.lower().endswith(('.jpg', '.png', '.jpeg'))]
@@ -83,7 +83,7 @@ def gaussian_blur_image():
         counter = counter + 1
 
         # Save the blurred image to the output directory
-        output_path = os.path.join(output_directory, f"gaussianblur_{image_file}")
+        output_path = os.path.join(gaussian_output_directory, f"gaussianblur_{image_file}")
         cv2.imwrite(output_path, resized_gaussian_image)
 
 # ---------- Gaussian Blur image ----------
@@ -137,7 +137,7 @@ def bilateral_filter_image():
         counter = counter + 1
 
         # Save the blurred image to the output directory
-        output_path = os.path.join(output_directory, f"bilateral_{image_file}")
+        output_path = os.path.join(bilateral_output_directory, f"bilateral_{image_file}")
         cv2.imwrite(output_path, resized_bilateral_image)
 
 # ---------- Bilateral Filter image ----------
