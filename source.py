@@ -3,6 +3,8 @@ import numpy as np
 import os
 import time
 import matplotlib.pyplot as plt
+import pycuda.driver as cuda
+import pycuda.autoinit
 
 
 # Directory containing the original images
@@ -10,11 +12,11 @@ image_directory = "D:/Bachelor of Software Engineering (TARUC)/Bachelor of SE (7
 
 # Directory to save the blurred images using gaussian filter
 gaussian_output_directory = os.path.join(image_directory, "D:/output_directory/") 
-gaussian_output_directory = "D:/Bachelor of Software Engineering (TARUC)/Bachelor of SE (7th Sem) Andrewhew/Distributed Systems and Parallel Computing/Assignment/image/sharp/100_images/gaussian_filter_image/"
+gaussian_output_directory = image_directory + "gaussian_filter_image/"
 
 # Directory to save the blurred images using bilateral
 bilateral_output_directory = os.path.join(image_directory, "D:/output_directory/") 
-bilateral_output_directory = "D:/Bachelor of Software Engineering (TARUC)/Bachelor of SE (7th Sem) Andrewhew/Distributed Systems and Parallel Computing/Assignment/image/sharp/100_images/bilateral_filter_image/"
+bilateral_output_directory = image_directory + "bilateral_filter_image/"
 
 # Create the gaussian output directory if it doesn't exist
 if not os.path.exists(gaussian_output_directory):
@@ -140,10 +142,10 @@ def bilateral_filter_image():
 total_start_time = time.time()
 
 #----- Gaussian Filter -----
-#gaussian_blur_image()
+gaussian_blur_image()
 
 #----- Bilateral Filter -----
-bilateral_filter_image()
+#bilateral_filter_image()
 
 # Record the end time
 total_end_time = time.time()

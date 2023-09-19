@@ -5,6 +5,7 @@ import time
 import threading
 import matplotlib.pyplot as plt
 
+
 # Number of images to process in each thread
 images_per_thread = 1
 
@@ -13,11 +14,11 @@ image_directory = "D:/Bachelor of Software Engineering (TARUC)/Bachelor of SE (7
 
 # Directory to save the blurred images using gaussian filter
 gaussian_output_directory = os.path.join(image_directory, "D:/output_directory/") 
-gaussian_output_directory = "D:/Bachelor of Software Engineering (TARUC)/Bachelor of SE (7th Sem) Andrewhew/Distributed Systems and Parallel Computing/Assignment/image/sharp/100_images/gaussian_filter_image/"
+gaussian_output_directory = image_directory + "gaussian_filter_image/"
 
 # Directory to save the blurred images using bilateral
 bilateral_output_directory = os.path.join(image_directory, "D:/output_directory/") 
-bilateral_output_directory = "D:/Bachelor of Software Engineering (TARUC)/Bachelor of SE (7th Sem) Andrewhew/Distributed Systems and Parallel Computing/Assignment/image/sharp/100_images/bilateral_filter_image/"
+bilateral_output_directory = image_directory + "bilateral_filter_image/"
 
 # Create the gaussian output directory if it doesn't exist
 if not os.path.exists(gaussian_output_directory):
@@ -131,29 +132,6 @@ def bilateral_filter_image(start_index, end_index):
 # ---------- Bilateral Filter image ----------
 
 
-# ---------- Apply multithreading ----------
-"""
-if __name__ == '__main__':
-    start = time.perf_counter()
-
-    # Create two separate processes
-    p1 = threading.Thread(target=gaussian_blur_image)
-    p2 = threading.Thread(target=bilateral_filter_image)
-
-    # Start the processes
-    p1.start()
-    p2.start()
-
-    # Wait for both processes to finish
-    p1.join()
-    p2.join()
-
-    finish = time.perf_counter()
-    print("Finished running after seconds: ", finish - start)
-"""
-# ---------- Apply multithreading ----------
-
-
 
 # ---------- Apply multithreading (Ver 2) ----------
 
@@ -193,9 +171,8 @@ print(f"\nTotal time taken: {total_time:.4f} seconds")
 # ---------- Apply multithreading (Ver 2) ----------
 
 
-
-
-"""""
+# ---------- Apply multithreading ----------
+"""
 if __name__ == '__main__':
     start = time.perf_counter()
 
@@ -213,7 +190,8 @@ if __name__ == '__main__':
 
     finish = time.perf_counter()
     print("Finished running after seconds: ", finish - start)
-"""""
+"""
+# ---------- Apply multithreading ----------
 
 
 

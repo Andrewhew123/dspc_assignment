@@ -11,11 +11,11 @@ image_directory = "D:/Bachelor of Software Engineering (TARUC)/Bachelor of SE (7
 
 # Directory to save the blurred images using gaussian filter
 gaussian_output_directory = os.path.join(image_directory, "D:/output_directory/") 
-gaussian_output_directory = "D:/Bachelor of Software Engineering (TARUC)/Bachelor of SE (7th Sem) Andrewhew/Distributed Systems and Parallel Computing/Assignment/image/sharp/100_images/gaussian_filter_image/"
+gaussian_output_directory = image_directory + "gaussian_filter_image/"
 
 # Directory to save the blurred images using bilateral
 bilateral_output_directory = os.path.join(image_directory, "D:/output_directory/") 
-bilateral_output_directory = "D:/Bachelor of Software Engineering (TARUC)/Bachelor of SE (7th Sem) Andrewhew/Distributed Systems and Parallel Computing/Assignment/image/sharp/100_images/bilateral_filter_image/"
+bilateral_output_directory = image_directory + "bilateral_filter_image/"
 
 # Create the gaussian output directory if it doesn't exist
 if not os.path.exists(gaussian_output_directory):
@@ -135,7 +135,10 @@ if __name__ == '__main__':
     image_directory = "D:/Bachelor of Software Engineering (TARUC)/Bachelor of SE (7th Sem) Andrewhew/Distributed Systems and Parallel Computing/Assignment/image/sharp/100_images/"
 
     # Directory to save the blurred images using gaussian filter
-    gaussian_output_directory = "D:/Bachelor of Software Engineering (TARUC)/Bachelor of SE (7th Sem) Andrewhew/Distributed Systems and Parallel Computing/Assignment/image/sharp/100_images/gaussian_filter_image/"
+    gaussian_output_directory = image_directory + "gaussian_filter_image/"
+
+    # Directory to save the blurred images using bilateral
+    bilateral_output_directory = image_directory + "bilateral_filter_image/"
 
     # Create the gaussian output directory if it doesn't exist
     if not os.path.exists(gaussian_output_directory):
@@ -144,17 +147,20 @@ if __name__ == '__main__':
     # List all files in the directory
     image_files = [file for file in os.listdir(image_directory) if file.lower().endswith(('.jpg', '.png', '.jpeg'))]
 
-    # Create a list of arguments for the multiprocessing pool
-    args_list = [(image_directory, image_file, gaussian_output_directory) for image_file in image_files]
+    # Create a list of arguments for the gaussian multiprocessing pool
+    gaussian_args_list = [(image_directory, image_file, gaussian_output_directory) for image_file in image_files]
+
+     # Create a list of arguments for the bilateral multiprocessing pool
+    bilateral_args_list = [(image_directory, image_file, bilateral_output_directory) for image_file in image_files]
 
     # Create a multiprocessing pool
     pool = Pool(processes=4)  # Adjust the number of processes as needed
 
     # Apply Gaussian blur to each image in parallel
-    #pool.map(gaussian_blur_image, args_list)
+    pool.map(gaussian_blur_image, gaussian_args_list)
 
     # Apply Bilateral Filter to each image in parallel
-    pool.map(bilateral_filter_image, args_list)
+    #pool.map(bilateral_filter_image, bilateral_args_list)
 
     # Close the pool to release resources
     pool.close()
