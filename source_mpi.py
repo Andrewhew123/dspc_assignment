@@ -16,7 +16,9 @@ size = comm.Get_size()
 script_directory = os.path.dirname(os.path.abspath(__file__))
 
 # Directory containing the original images
-image_directory = os.path.join(script_directory, "dataset", "50_images")
+#image_directory = os.path.join(script_directory, "dataset", "100_images") # Run for 100 images
+image_directory = os.path.join(script_directory, "dataset", "200_images") # Run for 200 images
+#image_directory = os.path.join(script_directory, "dataset", "350_images") # Run for 350 images
 
 # Specify the paths for the output gaussian and bilateral output directories 
 gaussian_output_directory = os.path.join(image_directory, "gaussian_filter_image")
