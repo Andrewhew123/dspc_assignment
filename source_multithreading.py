@@ -123,14 +123,15 @@ def process_bilateral_filter(start_index, end_index):
 # ---------- Process image using Bilateral Filter ----------
 
 
+# Define the number of threads
+num_threads = 3
+
 # ---------- Gaussian filter run with multithreading ----------
+
 def threading_gaussian_filter():
 
     # Record the start time
     total_start_time = time.time()
-
-    # Define the number of threads
-    num_threads = 3
 
     # Calculate the number of images to process in each thread
     images_per_thread = len(image_files) // num_threads
@@ -139,7 +140,6 @@ def threading_gaussian_filter():
     for i in range(num_threads):
         start_index = i * images_per_thread
         end_index = min((i + 1) * images_per_thread, len(image_files))
-        #----- Gaussian Filter -----
         thread = threading.Thread(target=process_gaussian_filter, args=(start_index, end_index))
         threads.append(thread)
 
@@ -158,7 +158,10 @@ def threading_gaussian_filter():
 
     # Calculate the total time
     total_time = total_end_time - total_start_time
-    print(f"\nTotal time taken for gaussian filter using multi-threading: {total_time:.4f} seconds")
+
+    # Multi-Threading Output Result
+    print("\n---------- Multi-Threading Result ----------")
+    print(f"\nTotal time taken for gaussian filter run in {num_threads} threads: {total_time:.4f} seconds")
 
 # ---------- Gaussian filter run with multithreading ----------
 
@@ -169,9 +172,6 @@ def threading_bilateral_filter():
     # Record the start time
     total_start_time = time.time()
 
-    # Define the number of threads
-    num_threads = 3
-
     # Calculate the number of images to process in each thread
     images_per_thread = len(image_files) // num_threads
 
@@ -179,7 +179,6 @@ def threading_bilateral_filter():
     for i in range(num_threads):
         start_index = i * images_per_thread
         end_index = min((i + 1) * images_per_thread, len(image_files))
-        #----- Bilateral Filter -----
         thread = threading.Thread(target=process_bilateral_filter, args=(start_index, end_index))
         threads.append(thread)
 
@@ -198,7 +197,10 @@ def threading_bilateral_filter():
 
     # Calculate the total time
     total_time = total_end_time - total_start_time
-    print(f"\nTotal time taken for bilateral filter using multi-threading: {total_time:.4f} seconds")
+
+    # Multi-Threading Output Result
+    print("\n---------- Multi-Threading Result ----------")
+    print(f"Total time taken for bilateral filter run in {num_threads} threads: {total_time:.4f} seconds")
 
 # ---------- Bilateral filter run with multithreading ----------
 

@@ -150,6 +150,9 @@ def serial_gaussian_filter():
 
     # Calculate the total time
     total_time = total_end_time - total_start_time
+
+    # Serial Output Result
+    print("\n---------- Serial Result ----------")
     print(f"\nTotal time taken for gaussian filter run with Serial: {total_time:.4f} seconds")
 
 # ---------- Gaussian filter run with Serial Computing ----------
@@ -170,13 +173,16 @@ def serial_bilateral_filter():
 
     # Calculate the total time
     total_time = total_end_time - total_start_time
-    print(f"\nTotal time taken for bilateral filter run with Serial: {total_time:.4f} seconds")
+
+    # Serial Output Result
+    print("\n---------- Serial Result ----------")
+    print(f"Total time taken for bilateral filter run with Serial: {total_time:.4f} seconds")
 
 # ---------- Bilateral filter run with Serial Computing ----------
 
 def main():
-    serial_gaussian_filter()
-    #serial_bilateral_filter()
+    #serial_gaussian_filter()
+    serial_bilateral_filter()
 
 
 if __name__ == "__main__":

@@ -143,7 +143,9 @@ def multiprocessing_gaussian_filter():
     finish = time.perf_counter()
     total_time = finish - start
 
-    print(f"\nTotal time taken for gaussian filter using multi-processing: {total_time:.4f} seconds")
+    # Multi-Processing Output Result
+    print("\n---------- Multi-Processing Result ----------")
+    print(f"Total time taken for gaussian filter using multi-processing: {total_time:.4f} seconds")
 # ---------- Gaussian filter run with multiprocessing ----------
 
 
@@ -169,7 +171,9 @@ def multiprocessing_bilateral_filter():
     finish = time.perf_counter()
     total_time = finish - start
 
-    print(f"\nTotal time taken for bilateral filter using multi-processing: {total_time:.4f} seconds")
+    # Multi-Processing Output Result
+    print("\n---------- Multi-Processing Result ----------")
+    print(f"Total time taken for bilateral filter using multi-processing: {total_time:.4f} seconds")
 # ---------- Bilateral filter run with multiprocessing ----------
 
 

@@ -141,7 +141,10 @@ def mpi_gaussian_blur_image():
 
     # Calculate the total time
     total_time = total_end_time - total_start_time
-    print(f"\nTotal time taken for gaussian filter run with MPI: {total_time:.4f} seconds")
+
+    # MPI Output Result
+    print("\n---------- MPI Result ----------")
+    print(f"Total time taken for gaussian filter run with MPI: {total_time:.4f} seconds")
 
     # Gather the execution times from all processes to rank 0
     execution_times = comm.gather(total_end_time - total_start_time, root=0)
@@ -216,7 +219,10 @@ def mpi_bilateral_filter_image():
 
     # Calculate the total time
     total_time = total_end_time - total_start_time
-    print(f"\nTotal time taken for bilateral filter run with MPI: {total_time:.4f} seconds")
+
+    # MPI Output Result
+    print("\n---------- MPI Result ----------")
+    print(f"Total time taken for bilateral filter run with MPI: {total_time:.4f} seconds")
 
     # Gather the execution times from all processes to rank 0
     execution_times = comm.gather(total_end_time - total_start_time, root=0)
