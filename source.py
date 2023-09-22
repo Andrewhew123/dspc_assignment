@@ -3,20 +3,17 @@ import numpy as np
 import os
 import time
 import matplotlib.pyplot as plt
-import pycuda.driver as cuda
-import pycuda.autoinit
+import os
 
+# Get the directory of the current script
+script_directory = os.path.dirname(os.path.abspath(__file__))
 
 # Directory containing the original images
-image_directory = "D:/Bachelor of Software Engineering (TARUC)/Bachelor of SE (7th Sem) Andrewhew/Distributed Systems and Parallel Computing/Assignment/image/sharp/100_images/"
+image_directory = os.path.join(script_directory, "dataset", "50_images")
 
-# Directory to save the blurred images using gaussian filter
-gaussian_output_directory = os.path.join(image_directory, "D:/output_directory/") 
-gaussian_output_directory = image_directory + "gaussian_filter_image/"
-
-# Directory to save the blurred images using bilateral
-bilateral_output_directory = os.path.join(image_directory, "D:/output_directory/") 
-bilateral_output_directory = image_directory + "bilateral_filter_image/"
+# Specify the paths for the output gaussian and bilateral output directories 
+gaussian_output_directory = os.path.join(image_directory, "gaussian_filter_image")
+bilateral_output_directory = os.path.join(image_directory, "bilateral_filter_image")
 
 # Create the gaussian output directory if it doesn't exist
 if not os.path.exists(gaussian_output_directory):
@@ -33,8 +30,8 @@ image_files = [file for file in os.listdir(image_directory) if file.lower().ends
 desired_width = 500
 
 
-# ---------- Gaussian Blur image ----------
-def gaussian_blur_image():
+# ---------- Process image using Gaussian Filter ----------
+def process_gaussian_filter():
 
     #counter
     counter = 1
@@ -81,17 +78,17 @@ def gaussian_blur_image():
         # Close the windows
         # cv2.destroyAllWindows()
 
-# ---------- Gaussian Blur image ----------
+# ---------- Process image using Gaussian Filter ----------
 
 
-# ---------- Bilateral Filter image ----------
+# ---------- Process image using Bilateral Filter ----------
 def gaussian(x,sigma):
     return (1.0/(2*np.pi*(sigma**2)))*np.exp(-(x**2)/(2*(sigma**2)))
 
 def distance(x1,y1,x2,y2):
     return np.sqrt(np.abs((x1-x2)**2-(y1-y2)**2))
 
-def bilateral_filter_image():
+def process_bilateral_filter():
 
     #counter
     counter = 1
@@ -135,22 +132,50 @@ def bilateral_filter_image():
         # Close the windows
         # cv2.destroyAllWindows()
 
-# ---------- Bilateral Filter image ----------
+# ---------- Process image using Bilateral Filter ----------
 
 
-# Record the start time
-total_start_time = time.time()
+# ---------- Gaussian filter run with Serial Computing ----------
+def serial_gaussian_filter():
+    # Record the start time
+    total_start_time = time.time()
 
-#----- Gaussian Filter -----
-gaussian_blur_image()
+    #----- Gaussian Filter -----
+    process_gaussian_filter()
 
-#----- Bilateral Filter -----
-#bilateral_filter_image()
+    # Record the end time
+    total_end_time = time.time()
 
-# Record the end time
-total_end_time = time.time()
+    # Calculate the total time
+    total_time = total_end_time - total_start_time
+    print(f"\nTotal time taken for gaussian filter run with Serial: {total_time:.4f} seconds")
+
+# ---------- Gaussian filter run with Serial Computing ----------
 
 
-# Calculate the total time
-total_time = total_end_time - total_start_time
-print(f"\nTotal time taken: {total_time:.4f} seconds")
+# ---------- Bilateral filter run with Serial Computing ----------
+def serial_bilateral_filter():
+    # Record the start time
+    total_start_time = time.time()
+
+    #----- Bilateral Filter -----
+    process_bilateral_filter()
+
+    print("All images have been processed.")
+
+    # Record the end time
+    total_end_time = time.time()
+
+    # Calculate the total time
+    total_time = total_end_time - total_start_time
+    print(f"\nTotal time taken for bilateral filter run with Serial: {total_time:.4f} seconds")
+
+# ---------- Bilateral filter run with Serial Computing ----------
+
+def main():
+    serial_gaussian_filter()
+    #serial_bilateral_filter()
+
+
+if __name__ == "__main__":
+    main()

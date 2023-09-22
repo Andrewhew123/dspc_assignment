@@ -3,22 +3,17 @@ import numpy as np
 import os
 import time
 import threading
-import matplotlib.pyplot as plt
+import os
 
-
-# Number of images to process in each thread
-images_per_thread = 1
+# Get the directory of the current script
+script_directory = os.path.dirname(os.path.abspath(__file__))
 
 # Directory containing the original images
-image_directory = "D:/Bachelor of Software Engineering (TARUC)/Bachelor of SE (7th Sem) Andrewhew/Distributed Systems and Parallel Computing/Assignment/image/sharp/100_images/"
+image_directory = os.path.join(script_directory, "dataset", "50_images")
 
-# Directory to save the blurred images using gaussian filter
-gaussian_output_directory = os.path.join(image_directory, "D:/output_directory/") 
-gaussian_output_directory = image_directory + "gaussian_filter_image/"
-
-# Directory to save the blurred images using bilateral
-bilateral_output_directory = os.path.join(image_directory, "D:/output_directory/") 
-bilateral_output_directory = image_directory + "bilateral_filter_image/"
+# Specify the paths for the output gaussian and bilateral output directories 
+gaussian_output_directory = os.path.join(image_directory, "gaussian_filter_image")
+bilateral_output_directory = os.path.join(image_directory, "bilateral_filter_image")
 
 # Create the gaussian output directory if it doesn't exist
 if not os.path.exists(gaussian_output_directory):
@@ -35,8 +30,8 @@ image_files = [file for file in os.listdir(image_directory) if file.lower().ends
 desired_width = 500
 
 
-# ---------- Gaussian Blur image ----------
-def gaussian_blur_image(start_index, end_index):
+# ---------- Process image using Gaussian Filter ----------
+def process_gaussian_filter(start_index, end_index):
 
     for i in range(start_index, end_index):
         image_file = image_files[i]
@@ -76,20 +71,17 @@ def gaussian_blur_image(start_index, end_index):
         output_path = os.path.join(gaussian_output_directory, f"gaussianblur_{image_file}")
         cv2.imwrite(output_path, resized_gaussian_image)
 
-        # Close the windows
-        # cv2.destroyAllWindows()
-
-# ---------- Gaussian Blur image ----------
+# ---------- Process image using Gaussian Filter ----------
 
 
-# ---------- Bilateral Filter image ----------
+# ---------- Process image using Bilateral Filter ----------
 def gaussian(x,sigma):
     return (1.0/(2*np.pi*(sigma**2)))*np.exp(-(x**2)/(2*(sigma**2)))
 
 def distance(x1,y1,x2,y2):
     return np.sqrt(np.abs((x1-x2)**2-(y1-y2)**2))
 
-def bilateral_filter_image(start_index, end_index):
+def process_bilateral_filter(start_index, end_index):
 
     for i in range(start_index, end_index):
         image_file = image_files[i]
@@ -126,73 +118,95 @@ def bilateral_filter_image(start_index, end_index):
         output_path = os.path.join(bilateral_output_directory, f"bilateral_{image_file}")
         cv2.imwrite(output_path, resized_bilateral_image)
 
-        # Close the windows
-        # cv2.destroyAllWindows()
-
-# ---------- Bilateral Filter image ----------
+# ---------- Process image using Bilateral Filter ----------
 
 
+# ---------- Gaussian filter run with multithreading ----------
+def threading_gaussian_filter():
 
-# ---------- Apply multithreading (Ver 2) ----------
+    # Record the start time
+    total_start_time = time.time()
 
-# Record the start time
-total_start_time = time.time()
+    # Define the number of threads
+    num_threads = 3
 
-# Split the image processing among multiple threads
-num_threads = (len(image_files) + images_per_thread - 1) // images_per_thread
+    # Calculate the number of images to process in each thread
+    images_per_thread = len(image_files) // num_threads
 
-threads = []
-for i in range(num_threads):
-    start_index = i * images_per_thread
-    end_index = min((i + 1) * images_per_thread, len(image_files))
-    #----- Gaussian Filter -----
-    thread = threading.Thread(target=gaussian_blur_image, args=(start_index, end_index))
-    #----- Bilateral Filter -----
-    #thread = threading.Thread(target=bilateral_filter_image, args=(start_index, end_index))
-    threads.append(thread)
+    threads = []
+    for i in range(num_threads):
+        start_index = i * images_per_thread
+        end_index = min((i + 1) * images_per_thread, len(image_files))
+        #----- Gaussian Filter -----
+        thread = threading.Thread(target=process_gaussian_filter, args=(start_index, end_index))
+        threads.append(thread)
 
-# Start the threads
-for thread in threads:
-    thread.start()
+    # Start the threads
+    for thread in threads:
+        thread.start()
 
-# Wait for all threads to finish
-for thread in threads:
-    thread.join()
+    # Wait for all threads to finish
+    for thread in threads:
+        thread.join()
 
-print("All threads have finished processing.")
+    print("All threads have finished processing.")
 
-# Record the end time
-total_end_time = time.time()
+    # Record the end time
+    total_end_time = time.time()
 
-# Calculate the total time
-total_time = total_end_time - total_start_time
-print(f"\nTotal time taken: {total_time:.4f} seconds")
+    # Calculate the total time
+    total_time = total_end_time - total_start_time
+    print(f"\nTotal time taken for gaussian filter using multi-threading: {total_time:.4f} seconds")
 
-# ---------- Apply multithreading (Ver 2) ----------
-
-
-# ---------- Apply multithreading ----------
-"""
-if __name__ == '__main__':
-    start = time.perf_counter()
-
-    # Create two separate processes
-    p1 = threading.Thread(target=gaussian_blur_image)
-    p2 = threading.Thread(target=bilateral_filter_image)
-
-    # Start the processes
-    p1.start()
-    p2.start()
-
-    # Wait for both processes to finish
-    p1.join()
-    p2.join()
-
-    finish = time.perf_counter()
-    print("Finished running after seconds: ", finish - start)
-"""
-# ---------- Apply multithreading ----------
+# ---------- Gaussian filter run with multithreading ----------
 
 
+# ---------- Bilateral filter run with multithreading ----------
+def threading_bilateral_filter():
+
+    # Record the start time
+    total_start_time = time.time()
+
+    # Define the number of threads
+    num_threads = 3
+
+    # Calculate the number of images to process in each thread
+    images_per_thread = len(image_files) // num_threads
+
+    threads = []
+    for i in range(num_threads):
+        start_index = i * images_per_thread
+        end_index = min((i + 1) * images_per_thread, len(image_files))
+        #----- Bilateral Filter -----
+        thread = threading.Thread(target=process_bilateral_filter, args=(start_index, end_index))
+        threads.append(thread)
+
+    # Start the threads
+    for thread in threads:
+        thread.start()
+
+    # Wait for all threads to finish
+    for thread in threads:
+        thread.join()
+
+    print("All threads have finished processing.")
+
+    # Record the end time
+    total_end_time = time.time()
+
+    # Calculate the total time
+    total_time = total_end_time - total_start_time
+    print(f"\nTotal time taken for bilateral filter using multi-threading: {total_time:.4f} seconds")
+
+# ---------- Bilateral filter run with multithreading ----------
+
+
+def main():
+    threading_gaussian_filter()
+    #threading_bilateral_filter()
+
+
+if __name__ == "__main__":
+    main()
 
 
