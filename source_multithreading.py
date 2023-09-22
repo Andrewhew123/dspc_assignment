@@ -5,35 +5,46 @@ import time
 import threading
 import os
 
-# Get the directory of the current script
-script_directory = os.path.dirname(os.path.abspath(__file__))
+# ---------- Input to set number of image samples ----------
+def input_image_sample():
+    while True:
+        print("Choose an option:")
+        print("1. Run with 100 image samples")
+        print("2. Run with 200 image samples")
+        print("3. Run with 350 image samples")
 
-# Directory containing the original images
-#image_directory = os.path.join(script_directory, "dataset", "100_images") # Run for 100 images
-image_directory = os.path.join(script_directory, "dataset", "200_images") # Run for 200 images
-#image_directory = os.path.join(script_directory, "dataset", "350_images") # Run for 350 images
+        user_input = input("Enter your choice (1/2/3): ")
 
-# Specify the paths for the output gaussian and bilateral output directories 
-gaussian_output_directory = os.path.join(image_directory, "gaussian_filter_image")
-bilateral_output_directory = os.path.join(image_directory, "bilateral_filter_image")
+        if user_input in ["1", "2", "3"]:
+            # Convert the user input to an integer
+            choice = int(user_input)
 
-# Create the gaussian output directory if it doesn't exist
-if not os.path.exists(gaussian_output_directory):
-    os.makedirs(gaussian_output_directory)
+            if choice == 1:
+                print("\nRun with 100 images\n")
+                return "100"
+            elif choice == 2:
+                print("\nRun with 200 images\n")
+                return "200"
+            elif choice == 3:
+                print("\nRun with 350 images\n")
+                return "350"
 
-# Create the bilateral output directory if it doesn't exist
-if not os.path.exists(bilateral_output_directory):
-    os.makedirs(bilateral_output_directory)
-
-# List all files in the directory
-image_files = [file for file in os.listdir(image_directory) if file.lower().endswith(('.jpg', '.png', '.jpeg'))]
-
-# Resize parameters
-desired_width = 500
+            # Exit the loop once a valid choice is made
+            break
+        else:
+            print("Invalid choice. Please enter 1, 2, or 3.\n")
+# ---------- Input to set number of image samples ----------
 
 
 # ---------- Process image using Gaussian Filter ----------
-def process_gaussian_filter(start_index, end_index):
+def process_gaussian_filter(start_index, end_index, image_directory, image_files, num_image):
+
+    # Specify the paths for the gaussian output directories 
+    gaussian_output_directory = os.path.join(image_directory, "gaussian_filter_image")
+
+    # Create the gaussian output directory if it doesn't exist
+    if not os.path.exists(gaussian_output_directory):
+        os.makedirs(gaussian_output_directory)
 
     for i in range(start_index, end_index):
         image_file = image_files[i]
@@ -55,6 +66,9 @@ def process_gaussian_filter(start_index, end_index):
         kernel = np.multiply(kx, np.transpose(ky))
 
         blurred_image_output = cv2.filter2D(image, -1, kernel)
+
+        # Resize parameters
+        desired_width = 500
 
         # Resize the original image for display
         resized_image = cv2.resize(image, (desired_width, int(image.shape[0] * (desired_width / image.shape[1]))))
@@ -83,7 +97,14 @@ def gaussian(x,sigma):
 def distance(x1,y1,x2,y2):
     return np.sqrt(np.abs((x1-x2)**2-(y1-y2)**2))
 
-def process_bilateral_filter(start_index, end_index):
+def process_bilateral_filter(start_index, end_index, image_directory, image_files, num_image):
+
+    # Specify the paths for the bilateral output directories 
+    bilateral_output_directory = os.path.join(image_directory, "bilateral_filter_image")
+
+    # Create the bilateral output directory if it doesn't exist
+    if not os.path.exists(bilateral_output_directory):
+        os.makedirs(bilateral_output_directory)
 
     for i in range(start_index, end_index):
         image_file = image_files[i]
@@ -102,6 +123,9 @@ def process_bilateral_filter(start_index, end_index):
         sigma_i = 75     # Intensity similarity weight
         sigma_s = 75     # Spatial distance weight
         blurred_image_output = cv2.bilateralFilter(image, diameter, sigma_i, sigma_s)
+
+        # Resize parameters
+        desired_width = 500
 
         # Resize the original image for display
         resized_image = cv2.resize(image, (desired_width, int(image.shape[0] * (desired_width / image.shape[1]))))
@@ -123,13 +147,28 @@ def process_bilateral_filter(start_index, end_index):
 # ---------- Process image using Bilateral Filter ----------
 
 
-# Define the number of threads
-num_threads = 3
+# ---------- Input to set number of THREADS ----------
+def input_number_threads():
+    while True:
+        input_threads = input("Enter the number of threads between 1 - 100: ")
+
+        try:
+            choice = int(input_threads)
+            if 1 <= choice <= 100:
+                print("\nNumber of threads: " + str(choice) + "\n")
+                return choice
+                break
+            else:
+                print("Invalid input. Please enter a number between 1 and 10.\n")
+        except ValueError:
+            print("Invalid input. Please enter a valid number.\n")
+# ---------- Input to set number of THREADS ----------
+
 
 # ---------- Gaussian filter run with multithreading ----------
 
-def threading_gaussian_filter():
-
+def threading_gaussian_filter(image_directory, image_files, num_image, num_threads):
+    
     # Record the start time
     total_start_time = time.time()
 
@@ -140,7 +179,7 @@ def threading_gaussian_filter():
     for i in range(num_threads):
         start_index = i * images_per_thread
         end_index = min((i + 1) * images_per_thread, len(image_files))
-        thread = threading.Thread(target=process_gaussian_filter, args=(start_index, end_index))
+        thread = threading.Thread(target=process_gaussian_filter, args=(start_index, end_index, image_directory, image_files, num_image))
         threads.append(thread)
 
     # Start the threads
@@ -161,13 +200,13 @@ def threading_gaussian_filter():
 
     # Multi-Threading Output Result
     print("\n---------- Multi-Threading Result ----------")
-    print(f"\nTotal time taken for gaussian filter run in {num_threads} threads: {total_time:.4f} seconds")
+    print(f"Total time taken for running {num_image} images using gaussian filter in {num_threads} threads: {total_time:.4f} seconds\n")
 
 # ---------- Gaussian filter run with multithreading ----------
 
 
 # ---------- Bilateral filter run with multithreading ----------
-def threading_bilateral_filter():
+def threading_bilateral_filter(image_directory, image_files, num_image, num_threads):
 
     # Record the start time
     total_start_time = time.time()
@@ -179,7 +218,7 @@ def threading_bilateral_filter():
     for i in range(num_threads):
         start_index = i * images_per_thread
         end_index = min((i + 1) * images_per_thread, len(image_files))
-        thread = threading.Thread(target=process_bilateral_filter, args=(start_index, end_index))
+        thread = threading.Thread(target=process_bilateral_filter, args=(start_index, end_index, image_directory, image_files, num_image))
         threads.append(thread)
 
     # Start the threads
@@ -200,15 +239,55 @@ def threading_bilateral_filter():
 
     # Multi-Threading Output Result
     print("\n---------- Multi-Threading Result ----------")
-    print(f"Total time taken for bilateral filter run in {num_threads} threads: {total_time:.4f} seconds")
+    print(f"Total time taken for running {num_image} images using bilateral filter in {num_threads} threads: {total_time:.4f} seconds\n")
 
 # ---------- Bilateral filter run with multithreading ----------
 
 
 def main():
-    threading_gaussian_filter()
-    #threading_bilateral_filter()
 
+    print("\n*************** Multi-Threading ***************\n")
+
+    # Get the directory of the current script
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+
+    num_image = input_image_sample()
+
+    # Directory containing the original images
+    image_directory = os.path.join(script_directory, "dataset", num_image + "_images") # Run for 100 images
+
+    # Define the number of threads
+    num_threads = input_number_threads()
+
+    # List all files in the directory
+    image_files = [file for file in os.listdir(image_directory) if file.lower().endswith(('.jpg', '.png', '.jpeg'))]
+
+    # Choose to run Gaussian or Bilateral filters
+    while True:
+        print("Choose an option:")
+        print("1. Run " + num_image + " images using Gaussian Filter")
+        print("2. Run " + num_image + " images using Bilateral Filter")
+
+        user_input = input("Enter your choice (1/2): ")
+
+        if user_input in ["1", "2"]:
+            # Convert the user input to an integer
+            choice = int(user_input)
+
+            gaussian_num_threads = num_threads
+            bilateral_num_threads = num_threads
+
+            if choice == 1:
+                print("\nRun " + num_image + " images using Gaussian Filter in " + str(gaussian_num_threads) + " threads\n")
+                threading_gaussian_filter(image_directory, image_files, num_image, num_threads)     
+            elif choice == 2:
+                print("\nRun " + num_image + " images using Bilateral Filter in " + str(bilateral_num_threads) + " threads\n")
+                threading_bilateral_filter(image_directory, image_files, num_image, num_threads)
+
+            # Exit the loop once a valid choice is made
+            break
+        else:
+            print("Invalid choice. Please enter 1, 2.\n")
 
 if __name__ == "__main__":
     main()

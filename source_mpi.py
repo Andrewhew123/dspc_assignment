@@ -7,36 +7,35 @@ from mpi4py import MPI
 import concurrent.futures
 import os
 
-# Initialize MPI
-comm = MPI.COMM_WORLD
-rank = comm.Get_rank()
-size = comm.Get_size()
+# ---------- Input to set number of image samples ----------
+def input_image_sample():
+    while True:
+        print("Choose an option:")
+        print("1. Run with 100 image samples")
+        print("2. Run with 200 image samples")
+        print("3. Run with 350 image samples")
 
-# Get the directory of the current script
-script_directory = os.path.dirname(os.path.abspath(__file__))
+        user_input = input("Enter your choice (1/2/3): ")
 
-# Directory containing the original images
-#image_directory = os.path.join(script_directory, "dataset", "100_images") # Run for 100 images
-image_directory = os.path.join(script_directory, "dataset", "200_images") # Run for 200 images
-#image_directory = os.path.join(script_directory, "dataset", "350_images") # Run for 350 images
+        if user_input in ["1", "2", "3"]:
+            # Convert the user input to an integer
+            choice = int(user_input)
 
-# Specify the paths for the output gaussian and bilateral output directories 
-gaussian_output_directory = os.path.join(image_directory, "gaussian_filter_image")
-bilateral_output_directory = os.path.join(image_directory, "bilateral_filter_image")
+            if choice == 1:
+                print("\nRun with 100 images\n")
+                return "100"
+            elif choice == 2:
+                print("\nRun with 200 images\n")
+                return "200"
+            elif choice == 3:
+                print("\nRun with 350 images\n")
+                return "350"
 
-# Create the gaussian output directory if it doesn't exist
-if not os.path.exists(gaussian_output_directory):
-    os.makedirs(gaussian_output_directory)
-
-# Create the bilateral output directory if it doesn't exist
-if not os.path.exists(bilateral_output_directory):
-    os.makedirs(bilateral_output_directory)
-
-# List all files in the directory
-image_files = [file for file in os.listdir(image_directory) if file.lower().endswith(('.jpg', '.png', '.jpeg'))]
-
-# Resize parameters
-desired_width = 500
+            # Exit the loop once a valid choice is made
+            break
+        else:
+            print("Invalid choice. Please enter 1, 2, or 3.\n")
+# ---------- Input to set number of image samples ----------
 
 
 # ---------- Process image using Gaussian Filter ----------
@@ -48,6 +47,9 @@ def process_gaussian_filter(image):
     ky = cv2.getGaussianKernel(kernel_size, sigma)
     kernel = np.multiply(kx, np.transpose(ky))
     blurred_image_output = cv2.filter2D(image, -1, kernel)
+
+    # Resize parameters
+    desired_width = 500
 
     # Resize the original image for display
     resized_image = cv2.resize(image, (desired_width, int(image.shape[0] * (desired_width / image.shape[1]))))
@@ -73,6 +75,9 @@ def process_bilateral_filter(image):
         sigma_s = 75     # Spatial distance weight
         blurred_image_output = cv2.bilateralFilter(image, diameter, sigma_i, sigma_s)
 
+        # Resize parameters
+        desired_width = 500
+
         # Resize the original image for display
         resized_image = cv2.resize(image, (desired_width, int(image.shape[0] * (desired_width / image.shape[1]))))
         # Resize the convolution image for display
@@ -83,9 +88,20 @@ def process_bilateral_filter(image):
 # ---------- Process image using Bilateral Filter ----------
 
 
-
 #---------- Gaussian Filter using MPI ----------
-def mpi_gaussian_blur_image():
+def mpi_gaussian_filter_image(image_directory, image_files, num_image):
+
+    # Specify the paths for the gaussian output directories 
+    gaussian_output_directory = os.path.join(image_directory, "gaussian_filter_image")
+
+    # Create the gaussian output directory if it doesn't exist
+    if not os.path.exists(gaussian_output_directory):
+        os.makedirs(gaussian_output_directory)
+
+    # Initialize MPI
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    size = comm.Get_size()
 
     # Calculate the number of files per process
     files_per_process = len(image_files) // size
@@ -144,7 +160,7 @@ def mpi_gaussian_blur_image():
 
     # MPI Output Result
     print("\n---------- MPI Result ----------")
-    print(f"Total time taken for gaussian filter run with MPI: {total_time:.4f} seconds")
+    print(f"Total time taken for running {num_image} images using gaussian filter in MPI: {total_time:.4f} seconds\n")
 
     # Gather the execution times from all processes to rank 0
     execution_times = comm.gather(total_end_time - total_start_time, root=0)
@@ -163,7 +179,19 @@ def mpi_gaussian_blur_image():
 
 
 #---------- Bilateral Filter using MPI ----------
-def mpi_bilateral_filter_image():
+def mpi_bilateral_filter_image(image_directory, image_files, num_image):
+    
+    # Specify the paths for the bilateral output directories 
+    bilateral_output_directory = os.path.join(image_directory, "bilateral_filter_image")
+
+    # Create the bilateral output directory if it doesn't exist
+    if not os.path.exists(bilateral_output_directory):
+        os.makedirs(bilateral_output_directory)
+
+    # Initialize MPI
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    size = comm.Get_size()
 
     # Calculate the number of files per process
     files_per_process = len(image_files) // size
@@ -222,7 +250,7 @@ def mpi_bilateral_filter_image():
 
     # MPI Output Result
     print("\n---------- MPI Result ----------")
-    print(f"Total time taken for bilateral filter run with MPI: {total_time:.4f} seconds")
+    print(f"Total time taken for running {num_image} images using bilateral filter in MPI: {total_time:.4f} seconds\n")
 
     # Gather the execution times from all processes to rank 0
     execution_times = comm.gather(total_end_time - total_start_time, root=0)
@@ -241,8 +269,44 @@ def mpi_bilateral_filter_image():
 
 
 def main():
-    mpi_gaussian_blur_image()
-    #mpi_bilateral_filter_image()
+
+    print("\n*************** MPI ***************\n")
+
+    # Get the directory of the current script
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+
+    num_image = input_image_sample()
+
+    # Directory containing the original images
+    image_directory = os.path.join(script_directory, "dataset", num_image + "_images") # Run for 100 images
+
+    # List all files in the directory
+    image_files = [file for file in os.listdir(image_directory) if file.lower().endswith(('.jpg', '.png', '.jpeg'))]
+
+    # Choose to run Gaussian or Bilateral filters
+    while True:
+        print("Choose an option:")
+        print("1. Run " + num_image + " images using Gaussian Filter")
+        print("2. Run " + num_image + " images using Bilateral Filter")
+
+        user_input = input("Enter your choice (1/2): ")
+
+        if user_input in ["1", "2"]:
+            # Convert the user input to an integer
+            choice = int(user_input)
+
+            if choice == 1:
+                print("\nRun " + num_image + " images using Gaussian Filter in MPI\n")
+                mpi_gaussian_filter_image(image_directory, image_files, num_image)
+            elif choice == 2:
+                print("\nRun " + num_image + " images using Bilateral Filter in MPI\n")
+                mpi_bilateral_filter_image(image_directory, image_files, num_image)
+
+            # Exit the loop once a valid choice is made
+            break
+        else:
+            print("Invalid choice. Please enter 1, 2.\n")
+
 
 if __name__ == "__main__":
     main()

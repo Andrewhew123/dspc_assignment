@@ -5,38 +5,50 @@ import time
 import matplotlib.pyplot as plt
 import os
 
-# Get the directory of the current script
-script_directory = os.path.dirname(os.path.abspath(__file__))
 
-# Directory containing the original images
-#image_directory = os.path.join(script_directory, "dataset", "100_images") # Run for 100 images
-image_directory = os.path.join(script_directory, "dataset", "200_images") # Run for 200 images
-#image_directory = os.path.join(script_directory, "dataset", "350_images") # Run for 350 images
+# ---------- Input to set number of image samples ----------
+def input_image_sample():
+    while True:
+        print("Choose an option:")
+        print("1. Run with 100 image samples")
+        print("2. Run with 200 image samples")
+        print("3. Run with 350 image samples")
 
-# Specify the paths for the output gaussian and bilateral output directories 
-gaussian_output_directory = os.path.join(image_directory, "gaussian_filter_image")
-bilateral_output_directory = os.path.join(image_directory, "bilateral_filter_image")
+        user_input = input("Enter your choice (1/2/3): ")
 
-# Create the gaussian output directory if it doesn't exist
-if not os.path.exists(gaussian_output_directory):
-    os.makedirs(gaussian_output_directory)
+        if user_input in ["1", "2", "3"]:
+            # Convert the user input to an integer
+            choice = int(user_input)
 
-# Create the bilateral output directory if it doesn't exist
-if not os.path.exists(bilateral_output_directory):
-    os.makedirs(bilateral_output_directory)
+            if choice == 1:
+                print("\nRun with 100 images\n")
+                return "100"
+            elif choice == 2:
+                print("\nRun with 200 images\n")
+                return "200"
+            elif choice == 3:
+                print("\nRun with 350 images\n")
+                return "350"
 
-# List all files in the directory
-image_files = [file for file in os.listdir(image_directory) if file.lower().endswith(('.jpg', '.png', '.jpeg'))]
-
-# Resize parameters
-desired_width = 500
+            # Exit the loop once a valid choice is made
+            break
+        else:
+            print("Invalid choice. Please enter 1, 2, or 3.\n")
+# ---------- Input to set number of image samples ----------
 
 
 # ---------- Process image using Gaussian Filter ----------
-def process_gaussian_filter():
+def process_gaussian_filter(image_directory, image_files, num_image):
 
     #counter
     counter = 1
+
+    # Specify the paths for the gaussian output directories 
+    gaussian_output_directory = os.path.join(image_directory, "gaussian_filter_image")
+
+    # Create the gaussian output directory if it doesn't exist
+    if not os.path.exists(gaussian_output_directory):
+        os.makedirs(gaussian_output_directory)
 
     for image_file in image_files:
         image_path = os.path.join(image_directory, image_file)
@@ -57,6 +69,9 @@ def process_gaussian_filter():
         kernel = np.multiply(kx, np.transpose(ky))
 
         blurred_image_output = cv2.filter2D(image, -1, kernel)
+
+        # Resize parameters
+        desired_width = 500
 
         # Resize the original image for display
         resized_image = cv2.resize(image, (desired_width, int(image.shape[0] * (desired_width / image.shape[1]))))
@@ -90,10 +105,17 @@ def gaussian(x,sigma):
 def distance(x1,y1,x2,y2):
     return np.sqrt(np.abs((x1-x2)**2-(y1-y2)**2))
 
-def process_bilateral_filter():
+def process_bilateral_filter(image_directory, image_files, num_image):
 
     #counter
     counter = 1
+
+    # Specify the paths for the bilateral output directories 
+    bilateral_output_directory = os.path.join(image_directory, "bilateral_filter_image")
+
+    # Create the bilateral output directory if it doesn't exist
+    if not os.path.exists(bilateral_output_directory):
+        os.makedirs(bilateral_output_directory)
 
     for image_file in image_files:
         image_path = os.path.join(image_directory, image_file)
@@ -111,6 +133,9 @@ def process_bilateral_filter():
         sigma_i = 75     # Intensity similarity weight
         sigma_s = 75     # Spatial distance weight
         blurred_image_output = cv2.bilateralFilter(image, diameter, sigma_i, sigma_s)
+
+        # Resize parameters
+        desired_width = 500
 
         # Resize the original image for display
         resized_image = cv2.resize(image, (desired_width, int(image.shape[0] * (desired_width / image.shape[1]))))
@@ -138,12 +163,12 @@ def process_bilateral_filter():
 
 
 # ---------- Gaussian filter run with Serial Computing ----------
-def serial_gaussian_filter():
+def serial_gaussian_filter(image_directory, image_files, num_image):
     # Record the start time
     total_start_time = time.time()
 
     #----- Gaussian Filter -----
-    process_gaussian_filter()
+    process_gaussian_filter(image_directory, image_files, num_image)
 
     # Record the end time
     total_end_time = time.time()
@@ -153,18 +178,18 @@ def serial_gaussian_filter():
 
     # Serial Output Result
     print("\n---------- Serial Result ----------")
-    print(f"\nTotal time taken for gaussian filter run with Serial: {total_time:.4f} seconds")
+    print(f"Total time taken for running {num_image} images using gaussian filter in Serial: {total_time:.4f} seconds\n")
 
 # ---------- Gaussian filter run with Serial Computing ----------
 
 
 # ---------- Bilateral filter run with Serial Computing ----------
-def serial_bilateral_filter():
+def serial_bilateral_filter(image_directory, image_files, num_image):
     # Record the start time
     total_start_time = time.time()
 
     #----- Bilateral Filter -----
-    process_bilateral_filter()
+    process_bilateral_filter(image_directory, image_files, num_image)
 
     print("All images have been processed.")
 
@@ -176,13 +201,49 @@ def serial_bilateral_filter():
 
     # Serial Output Result
     print("\n---------- Serial Result ----------")
-    print(f"Total time taken for bilateral filter run with Serial: {total_time:.4f} seconds")
+    print(f"Total time taken for running {num_image} images using bilateral filter in Serial: {total_time:.4f} seconds\n")
 
 # ---------- Bilateral filter run with Serial Computing ----------
 
+
 def main():
-    #serial_gaussian_filter()
-    serial_bilateral_filter()
+
+    print("\n*************** Serial ***************\n")
+
+    # Get the directory of the current script
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+
+    num_image = input_image_sample()
+
+    # Directory containing the original images
+    image_directory = os.path.join(script_directory, "dataset", num_image + "_images") # Run for 100 images
+
+    # List all files in the directory
+    image_files = [file for file in os.listdir(image_directory) if file.lower().endswith(('.jpg', '.png', '.jpeg'))]
+
+    # Choose to run Gaussian or Bilateral filters
+    while True:
+        print("Choose an option:")
+        print("1. Run " + num_image + " images using Gaussian Filter")
+        print("2. Run " + num_image + " images using Bilateral Filter")
+
+        user_input = input("Enter your choice (1/2): ")
+
+        if user_input in ["1", "2"]:
+            # Convert the user input to an integer
+            choice = int(user_input)
+
+            if choice == 1:
+                print("\nRun " + num_image + " images using Gaussian Filter in Serial\n")
+                serial_gaussian_filter(image_directory, image_files, num_image)
+            elif choice == 2:
+                print("\nRun " + num_image + " images using Bilateral Filter in Serial\n")
+                serial_bilateral_filter(image_directory, image_files, num_image)
+
+            # Exit the loop once a valid choice is made
+            break
+        else:
+            print("Invalid choice. Please enter 1, 2.\n")
 
 
 if __name__ == "__main__":
