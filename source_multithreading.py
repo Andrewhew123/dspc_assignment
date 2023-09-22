@@ -150,16 +150,16 @@ def process_bilateral_filter(start_index, end_index, image_directory, image_file
 # ---------- Input to set number of THREADS ----------
 def input_number_threads():
     while True:
-        input_threads = input("Enter the number of threads between 1 - 100: ")
+        input_threads = input("Enter the number of threads between 1 - 16: ")
 
         try:
             choice = int(input_threads)
-            if 1 <= choice <= 100:
+            if 1 <= choice <= 16:
                 print("\nNumber of threads: " + str(choice) + "\n")
                 return choice
                 break
             else:
-                print("Invalid input. Please enter a number between 1 and 10.\n")
+                print("Invalid input. Please enter a number between 1 and 16.\n")
         except ValueError:
             print("Invalid input. Please enter a valid number.\n")
 # ---------- Input to set number of THREADS ----------
